@@ -21,6 +21,7 @@
 
         <!-- Footer Start -->
         @include('customer.layouts.__footer')
+        @yield('script')
         <!-- Footer End -->
 
         <!-- Back to Top -->
