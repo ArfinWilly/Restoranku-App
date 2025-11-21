@@ -7,6 +7,7 @@ Route::get('/', function () {
 });
 
 Route::get('/menu', [App\Http\Controllers\MenuController::class, 'index'])->name('menu');
+
 Route::get('/cart', [App\Http\Controllers\MenuController::class, 'cart'])->name('cart');
 Route::post('/cart/add', [App\Http\Controllers\MenuController::class, 'addCart'])->name('add.cart');
 Route::post('/cart/update', [App\Http\Controllers\MenuController::class, 'updateCart'])->name('update.cart');
@@ -15,4 +16,4 @@ Route::get('/cart/clear', [App\Http\Controllers\MenuController::class, 'clearCar
 
 Route::get('/checkout' , [App\Http\Controllers\MenuController::class, 'checkout'])->name('checkout');
 Route::post('/checkout/store' , [App\Http\Controllers\MenuController::class, 'storeOrder'])->name('checkout.store');
-Route::get('/order/success/{orderId}' , [App\Http\Controllers\MenuController::class, 'checkoutSuccess'])->name('checkout.success');
+Route::get('/checkout/success/{orderId}' , [App\Http\Controllers\MenuController::class, 'checkoutSuccess'])->name('checkout.success');

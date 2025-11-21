@@ -135,7 +135,7 @@
                                     </div>
 
                                     <div class="d-flex justify-content-end">
-                                        <button type="submit" class="btn border-secondary py-3 text-uppercase text-primary">Konfirmasi Pesanan</button> 
+                                        <button type="submit" id="pay-button" class="btn border-secondary py-3 text-uppercase text-primary">Konfirmasi Pesanan</button> 
                                     </div>
                                     
                                 </div>
@@ -147,5 +147,61 @@
         </div>
         <!-- Checkout Page End -->
  
+        <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
+
+        <script>
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                const payButton = document.getElementById('pay-button');
+                const form = document.querySelector('form');
+
+                payButton.addEventListener('click' , function(event) {
+                    event.preventDefault();
+                    let paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+                    if(!paymentMethod) {
+                        event.preventDefault();
+                        alert("Silakan pilih metode pembayaran.");
+                    }
+
+                    paymentMethod = paymentMethod.value;
+                    let formData = new FormData(form);
+
+                    if (paymentMethod === 'tunai') {
+                        form.submit();
+                    } else {
+                        fetch('{{ route('checkout.store') }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.snap_token) {
+                                snap.pay(data.snap_token, {
+                                    onSuccess: function(result){
+                                        window.location.href = '/checkout/success/' + data.order_code;
+                                    },
+                                    onPending: function(result){
+                                        alert("Menunggu pembayaran...");
+                                    },
+                                    onError: function(result){
+                                        alert("Pembayaran gagal. Silakan coba lagi.");
+                                    }
+                                });
+                            } else {
+                                alert("Terjadi kesalahan saat memproses pembayaran.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert("Terjadi kesalahan saat memproses pembayaran.");
+                        });
+                    }
+                });
+            });
+
+        </script>
 
 @endsection

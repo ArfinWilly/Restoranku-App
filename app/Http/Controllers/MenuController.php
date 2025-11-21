@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Midtrans\Snap;
 
 class MenuController extends Controller
 {
@@ -160,10 +161,10 @@ class MenuController extends Controller
             $totalAmount += $itemTotal;
 
             $itemDetails[] = [
-                'item_id' => $item['id'],
-                'name' => substr($item['name'], 0, 50),
-                'price' => (int) $item['price'] + ($item['price'] * 0.1), // Including 10% tax
-                'quantity' => $item['qty']
+                'id' => $item['id'],
+                'name' => substr($item['name'] ?? '', 0, 50),
+                'price' => (int) ($item['price'] + ($item['price'] * 0.1)), // Including 10% tax
+                'quantity' => (int) ($item['qty'] ?? 0)
             ];
         }
 
@@ -177,8 +178,8 @@ class MenuController extends Controller
             'order_code' => 'ORD' . $tableNumber . '-' . time() ,
             'user_id' => $user->id,
             'subtotal' => $totalAmount,
-            'tax' => $totalAmount * 0.1,
-            'grandTotal' => $totalAmount + ($totalAmount * 0.1), // Including 10% tax
+            'tax' => (int) ($totalAmount * 0.1),
+            'grandTotal' => (int) ($totalAmount + ($totalAmount * 0.1)), // Including 10% tax
             'status' => 'pending',
             'table_number' => $tableNumber,
             'payment_method' => $request->input('payment_method'),
@@ -199,7 +200,44 @@ class MenuController extends Controller
         // After storing the order, you might want to clear the cart
         Session::forget('cart');
 
-        return redirect()->route('checkout.success' , ['orderId' => $order->order_code])->with('success', 'Order placed successfully!');
+        if ($request->payment_method == 'tunai') {
+            return redirect()->route('checkout.success' , ['orderId' => $order->order_code])->with('success', 'Order placed successfully!');
+        } else {
+            // Logic to handle QRIS payment can be added here
+            // For now, we will just redirect to success page
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('midtrans.is_production');
+            \Midtrans\Config::$isSanitized = true;
+            \Midtrans\Config::$is3ds = true;
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $order->order_code,
+                    'gross_amount' => (int) $order->grandTotal,
+                ],
+                'item_details' => $itemDetails,
+                'customer_details' => [
+                    'first_name' => $user->fullname ?? 'Guest',
+                    'phone' => $user->phone,
+                ],
+                'payment_type' => 'qris'
+            ];
+
+            try {
+                $snapToken = Snap::getSnapToken($params);
+
+                return response()->json([
+                    'status' => 'success',
+                    'snap_token' => $snapToken,
+                    'order_code' => $order->order_code
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Gagal membuat pesanan. Silahkan coba lagi.'
+                ], 500);
+            }
+        }
     }
 
     public function checkoutSuccess($orderId)
