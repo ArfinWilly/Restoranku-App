@@ -17,3 +17,17 @@ Route::get('/cart/clear', [App\Http\Controllers\MenuController::class, 'clearCar
 Route::get('/checkout' , [App\Http\Controllers\MenuController::class, 'checkout'])->name('checkout');
 Route::post('/checkout/store' , [App\Http\Controllers\MenuController::class, 'storeOrder'])->name('checkout.store');
 Route::get('/checkout/success/{orderId}' , [App\Http\Controllers\MenuController::class, 'checkoutSuccess'])->name('checkout.success');
+
+Route::get('/dashboard' , function () {
+    return view('admin.dashboard');
+})->name('dashboard');
+
+Route::resource('/categories' , App\Http\Controllers\CategoryController::class);
+
+Route::resource('/orders' , App\Http\Controllers\OrderController::class);
+
+Route::resource('/items' , App\Http\Controllers\ItemController::class);
+
+Route::resource('/roles' , App\Http\Controllers\RoleController::class);
+
+Route::resource('/users' , App\Http\Controllers\UserController::class);
