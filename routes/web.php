@@ -18,9 +18,7 @@ Route::get('/checkout' , [App\Http\Controllers\MenuController::class, 'checkout'
 Route::post('/checkout/store' , [App\Http\Controllers\MenuController::class, 'storeOrder'])->name('checkout.store');
 Route::get('/checkout/success/{orderId}' , [App\Http\Controllers\MenuController::class, 'checkoutSuccess'])->name('checkout.success');
 
-Route::get('/dashboard' , function () {
-    return view('admin.dashboard');
-})->name('dashboard');
+Route::get('/dashboard' , [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
 Route::resource('/categories' , App\Http\Controllers\CategoryController::class);
 
