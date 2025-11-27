@@ -27,6 +27,7 @@ Route::resource('/categories' , App\Http\Controllers\CategoryController::class);
 Route::resource('/orders' , App\Http\Controllers\OrderController::class);
 
 Route::resource('/items' , App\Http\Controllers\ItemController::class);
+Route::post('/items/{id}/update-status', [App\Http\Controllers\ItemController::class, 'updateStatus'])->name('items.updateStatus');
 
 Route::resource('/roles' , App\Http\Controllers\RoleController::class);
 
