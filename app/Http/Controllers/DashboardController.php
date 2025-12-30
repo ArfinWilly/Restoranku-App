@@ -14,14 +14,13 @@ class DashboardController extends Controller
     {
         // Menghitung total data untuk setiap model
         $totalOrders = Order::count();
+        // Menghitung total pendapatan dari semua order
+        $totalRevenues = Order::sum('grandTotal');
         // Menghitung total order untuk hari ini
         $totalOrderToday = Order::whereDate('created_at', now()->toDateString())->count();
-        // Menghitung total menu
-        $totalMenus = Item::count();
-        // Menghitung total karyawan
-        $totalEmployees = User::count();
-
+        // Menghitung total pendapatan untuk hari ini
+        $totalRevenueToday = Order::whereDate('created_at', now()->toDateString())->sum('grandTotal');
         // Mengirim data ke view dashboard
-        return view('admin.dashboard', compact('totalOrders', 'totalOrderToday', 'totalMenus', 'totalEmployees'));
+        return view('admin.dashboard', compact('totalOrders', 'totalRevenues', 'totalOrderToday', 'totalRevenueToday'));
     }
 }
