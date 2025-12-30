@@ -21,7 +21,7 @@ class MenuController extends Controller
             Session::put('tableNumber', $tableNumber);
         }
 
-        $items = Item::where('is_active' , 1)->orderBy('name' , 'asc')->get() ;
+        $items = Item::with('category')->where('is_active' , 1)->orderBy('name' , 'asc')->get() ;
 
         // Logic to display the menu to customers
         return view('customer.menu' , compact('items' , 'tableNumber'));
@@ -133,6 +133,10 @@ class MenuController extends Controller
 
     public function storeOrder(Request $request)
     {
+        if (!Session::has('tableNumber')) {
+            return redirect()->route('menu')
+                ->with('error', 'Nomor meja tidak ditemukan. Silakan scan ulang QR meja.');
+        }
         // You can access the cart items from the session
         $cart = Session::get('cart');
         $tableNumber = Session::get('tableNumber');
@@ -183,7 +187,7 @@ class MenuController extends Controller
             'status' => 'pending',
             'table_number' => $tableNumber,
             'payment_method' => $request->input('payment_method'),
-            'notes' => $request->input('notes')
+            'notes' => $request->notes
         ]) ;
 
         foreach ($cart as $itemId => $item) {
@@ -199,6 +203,7 @@ class MenuController extends Controller
 
         // After storing the order, you might want to clear the cart
         Session::forget('cart');
+        Session::forget('tableNumber');
 
         if ($request->payment_method == 'tunai') {
             return redirect()->route('checkout.success' , ['orderId' => $order->order_code])->with('success', 'Order placed successfully!');

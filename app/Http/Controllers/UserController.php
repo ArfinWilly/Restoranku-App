@@ -25,7 +25,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        $roles = Role::orderBy('role_name', 'asc')->get();
+        $roles = Role::orderBy('role_name', 'asc')->where('role_name', '!=', 'customer')->get();
+        
         return view('admin.user.create', compact('roles'));
     }
 
@@ -71,7 +72,7 @@ class UserController extends Controller
     public function edit(string $id)
     {
         $user = User::findOrFail($id);
-        $roles = Role::orderBy('role_name', 'asc')->get();
+        $roles = Role::orderBy('role_name', 'asc')->where('role_name', '!=', 'customer')->get();
         return view('admin.user.edit', compact('user', 'roles'));
     }
 

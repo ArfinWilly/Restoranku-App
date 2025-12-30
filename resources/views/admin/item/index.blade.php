@@ -47,7 +47,7 @@
                                 <th>Harga</th>
                                 <th>Kategori</th>
                                 <th>Status</th>
-                                <th>Aksi</th>
+                                <th colspan="2">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,15 +75,17 @@
                                     </td>
                                     <td>
                                         <a href="{{ route('items.edit', $item->id) }}" class="btn btn-sm btn-warning">
-                                            <i class="bi bi-pencil-square"></i>
+                                            <i class="bi bi-pencil-square"></i> Edit
                                         </a>
+                                    </td>
+                                    <td>
                                         @if ($item->is_active == 1)
                                             <form action="{{ route('items.updateStatus', $item->id) }}" method="POST">
                                                 @csrf
                                                 <input type="hidden" name="is_active" value="0">
                                                 <button type="submit" class="btn btn-sm btn-secondary"
                                                     onclick="return confirm('Yakin ingin menonaktifkan item ini?')">
-                                                    <i class="bi bi-eye-slash"></i>
+                                                    <i class="bi bi-eye-slash"></i> Nonaktifkan
                                                 </button>
                                             </form>
                                         @else
@@ -92,19 +94,10 @@
                                                 <input type="hidden" name="is_active" value="1">
                                                 <button type="submit" class="btn btn-sm btn-success"
                                                     onclick="return confirm('Yakin ingin mengaktifkan item ini?')">
-                                                    <i class="bi bi-eye"></i>
+                                                    <i class="bi bi-eye"></i> Aktifkan
                                                 </button>
                                             </form>
                                         @endif
-                                        {{-- <form action="{{ route('items.destroy', $item->id) }}" method="POST"
-                                            class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Yakin ingin menghapus item ini?')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form> --}}
                                     </td>
                                 </tr>
                             @endforeach

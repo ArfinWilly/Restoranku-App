@@ -16,16 +16,6 @@
                     <h3>Daftar Pesanan</h3>
                     <p class="text-subtitle text-muted">Daftar Pesanan yang masuk</p>
                 </div>
-                {{-- <div class="col-12 col-md-6 order-md-2 order-first">
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <a href="{{ route('items.create') }}" class="btn btn-primary float-start float-lg-end">
-                                <i class="bi bi-plus-lg"></i>
-                                Tambah Menu
-                            </a>
-                        </ol>
-                    </nav>
-                </div> --}}
             </div>
         </div>
         <section class="section">
@@ -49,7 +39,7 @@
                                 <th>Metode Pembayaran</th>
                                 <th>Catatan</th>
                                 <th>Dibuat Pada</th>
-                                <th>Aksi</th>
+                                <th colspan="2">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -58,7 +48,7 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $order->order_code }}</td>
                                     <td>{{ $order->user->fullname }}</td>
-                                    <td>{{ 'Rp' . number_format($order->garndTotal, 0, ',', '.') }}</td>
+                                    <td>{{ 'Rp' . number_format($order->grandTotal, 0, ',', '.') }}</td>
                                     <td>
                                         <span
                                             class="badge {{ $order->status == 'settlement' ? 'bg-success' : ($order->status == 'pending' ? 'bg-warning' : 'bg-primary') }}">
@@ -70,11 +60,31 @@
                                     <td>{{ $order->notes ?? '-' }}</td>
                                     <td>{{ $order->created_at->format('d-m-Y H:i') }}</td>
                                     <td>
-                                        <span class="badge bg-info">
+                                        <span class="btn btn-info btn-sm">
                                             <a href="{{ route('orders.show', $order->id) }}" class="text-white">
-                                                <i class="bi bi-eye">Lihat</i>
+                                                <i class="bi bi-eye"></i> Lihat
                                             </a>
                                         </span>
+                                    </td>
+                                    <td>
+                                        @if (Auth::user()->role->role_name == 'admin' || Auth::user()->role->role_name == 'cashier')
+                                            @if ($order->status == 'pending' && $order->payment_method == 'tunai')
+                                                <form action="{{ route('orders.updateStatus', $order->id) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success btn-sm">
+                                                        <i class="bi bi-check-circle"></i> Terima Pembayaran
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @elseif (Auth::user()->role->role_name == 'chef' && $order->status == 'settlement')
+                                            <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="bi bi-check-circle"></i> Pesanan Siap
+                                                </button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
